@@ -15,7 +15,7 @@ Created on Fri Jul 14 10:54:17 2023
 
 
 if __name__ == '__main__':
-    windows= [ 100]
+
     
 
     import pandas as pd
@@ -32,30 +32,25 @@ if __name__ == '__main__':
 
     genos,pos= vcf_read('mango_chr20_subset_1.vcf')
     
-    for window in windows:
-        print(window)
-
-        start_time = time.perf_counter()
-        refpos, refgeno = extract_ref(genos, pos, 50, window)
-
-        
-        imputed_gts = main_impute(genos, pos, refgeno, refpos, window, 48)
-        # imputed_gts = impute_missing(genos[0:1000], pos[0:1000], refgeno, refpos, window)
-        
     
-        
-        from collections import Counter
-        findtruth = np.concatenate(imputed_gts) == genos
-        cntmissing= Counter(np.concatenate(genos))
-        cnt= Counter(np.concatenate(findtruth))
-        
-        
+    start_time = time.perf_counter()
+    refpos, refgeno = extract_ref(genos, pos, 50, 100)
 
-        
-        finish_time = time.perf_counter()
-        
-        # end = time.time()
-        timetaken = finish_time-start_time
-        # print(f"Program finished in {finish_time-start_time} seconds")
-        tosto = pd.DataFrame([window, cnt, cntmissing, timetaken])
-        tosto.to_csv('read.csv', mode='a')
+    imputed_gts = main_impute(genos, pos, refgeno, refpos, 100, 48)
+
+    from collections import Counter
+    findtruth = imputed_gts == genos
+    cntmissing= Counter(np.concatenate(genos))
+    cnt= Counter(np.concatenate(findtruth))
+    
+            
+    finish_time = time.perf_counter()
+    
+
+    timetaken = finish_time-start_time
+    
+    print(f"Program finished in {timetaken} seconds")
+    print(cnt)
+    print(cntmissing)
+    # tosto = pd.DataFrame([window, cnt, cntmissing, timetaken])
+    # tosto.to_csv('read.csv', mode='a')

@@ -88,12 +88,12 @@ def extract_ref(genos, pos, ref_size, window_size):
     return ref_pos, ref_gts
 
 
-def impute_missing(genos, pos, ref_gts, ref_pos, window_size):
+def impute_missing(genos, pos, ref_gts, ref_pos, window_size, end_j, j=0):
     
     if all(pos!= ref_pos):
         raise IOError('Reference genome and imputed genome do not contain the same positions')
     imputed_gts=[]
-    j=0
+
 
     while j < len(pos):
         
@@ -154,7 +154,7 @@ def impute_missing(genos, pos, ref_gts, ref_pos, window_size):
         test_lab=list(test_lab)
         
         train_lab = list(train_lab)
-        rf = RandomForestClassifier(n_estimators = 100, n_jobs=-1)
+        rf = RandomForestClassifier(n_estimators = 100, n_jobs=1)
         rf.fit (train_fea, train_lab)
         test_pred = rf.predict(test_fea)
         
@@ -166,65 +166,28 @@ def impute_missing(genos, pos, ref_gts, ref_pos, window_size):
         imputed_gts.append(test_pred)
     
         j+=1
+        
+        if j== end_j+1:
+            break
     imputed_gts = np.stack(imputed_gts)
 
     return imputed_gts
 
 def main_impute(genos, pos, ref_gts, ref_pos, window_size, split_portions=10):
+
     if split_portions == 1:
-        imputed_gts = impute_missing(genos, pos, ref_gts, ref_pos, window_size)
+        end_j=len(pos)
+        imputed_gts = impute_missing(genos, pos, ref_gts, ref_pos, window_size, end_j)
+        return imputed_gts
     else:
-            
-        # start_time = time.perf_counter()
-        genos = np.array_split(genos, split_portions)
-        pos = np.array_split(pos, split_portions)
-        ref_gts = np.array_split(ref_gts, split_portions)
-        ref_pos = np.array_split(ref_pos, split_portions)
-        
-        
-        # with Pool(num_threads) as pool:
-        #     for imputed_gts in pool.map(impute_missing, [[a for a in genos],[b for b in pos],[c for c in ref_gts],[d for d in ref_pos],[e for e in [window_size]*split_portions],]):
-        #         print(1)
-        
-        
-        # pool = multiprocessing.Pool(8)
-        # pool.map(target=impute_missing, args=(genos[1], pos[1], ref_gts[1], ref_pos[1], window_size,) )
-        
-        # for i in range(split_portions):
-            
-        #     # create all tasks
-        #     processes = [Process(target=impute_missing, args=(genos[i], pos[i], ref_gts[i], ref_pos[i], window_size, ))]
-        #     # processes = [Process(target=impute_missing, args=(genos[i], pos[i], ref_gts[i], ref_pos[i], window_size, )) for i in range(split_portions)]
-        #     # start all processes
-        #     for process in processes:
-        #         process.start()
-        #     # wait for all processes to complete
-        #     for process in processes:
-        #         process.join()
-        # imputed_gts=np.concatenate(processes)
-        # return imputed_gts
-        
-        
-        # # Running multiple processes
-        # processes = []
-     
-        # # Creates no. of processes equal to the split portions then starts them
-        # for i in range(split_portions):
-        #     p = multiprocessing.Process(target = impute_missing, args=(genos[i], pos[i], ref_gts[i], ref_pos[i], window_size,)  )
-        #     p.start()
-        #     processes.append(p)
-        
-        # # Joins all the processes 
-        # for p in processes:
-        #     p.join()
-    
-        # # finish_time = time.perf_counter()
-        # # print(f"Program finished in {finish_time-start_time} seconds")
+
+        no_j=np.array_split(np.array([*range(len(pos))]), split_portions)
         
         pool = multiprocessing.Pool(split_portions)
     
-        processes = [pool.apply_async(impute_missing, args = (genos[i], pos[i], ref_gts[i], ref_pos[i], window_size,)  ) for i in range(split_portions)]
+        processes = [pool.apply_async(impute_missing, args = (genos, pos, ref_gts, ref_pos, window_size, no_j[i][-1], no_j[i][0])) for i in range(split_portions)]
         result = [p.get() for p in processes]
+        result= np.concatenate(result)
     return result
     
     
