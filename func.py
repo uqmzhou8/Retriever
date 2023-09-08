@@ -20,8 +20,9 @@ import time
 def vcf_read(namef):
     pos=[]
     genos=[]
+    otherinfo= []
     for v in VCF(namef):
-    
+        otherinfo.append([v.CHROM, v.REF, v.ALT[0]])
         pos.append(v.POS)
         gts = v.genotype.array().astype(int)
     
@@ -29,7 +30,7 @@ def vcf_read(namef):
             raise IOError('VCF must be for diploids.')
         #genotypes are converted in the following format: 0|0=1 0|1=2 1|0=3 1|1=4
         #missing data will be -3
-        gts[gts[:, 2] == 1, 0] = 0
+        gts[:, 2] = 0
         gts[gts[:, 0] == 0, 0] = 2
         gts[gts[:, 0] == 1, 0] = 4
         gts = gts.sum(axis=1)
@@ -37,7 +38,11 @@ def vcf_read(namef):
         genos.append(gts)
     genos=np.stack(genos)
     pos=np.array(pos, dtype= "int")
-    return genos, pos
+    otherinfo=np.stack(otherinfo)
+
+    return genos, pos, otherinfo
+
+
 
 
 # # extracting out a section of the genome and positions
@@ -85,7 +90,7 @@ def extract_ref(genos, pos, ref_size, window_size):
     ref_pos=np.concatenate(ref_pos)
     if all(ref_pos != pos):
         raise IOError('Error in alignment')
-    return ref_pos, ref_gts
+    return ref_gts, ref_pos
 
 
 def impute_missing(genos, pos, ref_gts, ref_pos, window_size, end_j, j=0):
@@ -173,7 +178,41 @@ def impute_missing(genos, pos, ref_gts, ref_pos, window_size, end_j, j=0):
 
     return imputed_gts
 
-def main_impute(genos, pos, ref_gts, ref_pos, window_size, split_portions=10):
+#generate chimeric reference genomes and saving the reference genomes
+def vcf2ref(file_name, num_ref, window_size=100, outfile='chimeric_ref_gts.vcf'):
+    global otherinfo
+    genos,pos, otherinfo= vcf_read(file_name)
+    
+    refgeno, refpos = extract_ref(genos, pos, num_ref, window_size)
+    #saving the reference genomes
+    header_1= VCF(file_name).raw_header
+    temp=header_1.split('\n')
+    temp=temp[:-2]
+    df= pd.DataFrame([temp])
+    df=df.T
+    df.to_csv(outfile , sep="\t",header=None, index=None, quoting=3 ,escapechar="\n")
+    columnheader=['#CHROM', 'POS', 'ID', 'REF', 'ALT', 'QUAL', 'FILTER', 'INFO', 'FORMAT']
+    geinfo=np.zeros([len(pos),9])
+    geinfo=pd.DataFrame(geinfo, columns= columnheader,dtype=int)
+    geinfo=geinfo.replace(0,'.')
+    geinfo['POS']= pos
+    geinfo['FILTER']='PASS'
+    geinfo['FORMAT']='GT'
+    geinfo['#CHROM']=otherinfo[:,0]
+    geinfo['REF']=otherinfo[:,1]
+    geinfo['ALT']=otherinfo[:,2]
+    geno2sto=pd.DataFrame(refgeno)
+    geno2sto=geno2sto.replace(1,'0|0')
+    geno2sto=geno2sto.replace(2,'0|1')
+    geno2sto=geno2sto.replace(3,'1|0')
+    geno2sto=geno2sto.replace(4,'1|1')
+    newdf= pd.concat([geinfo,geno2sto],axis=1)
+    newdf.to_csv(outfile, mode='a', sep="\t", header=True, index=None, quoting=3 ,escapechar="\n")
+    return genos, pos, refgeno, refpos
+
+
+#using the input from chimeric reference genomic data to impute missing data
+def impute_geno(genos, pos, ref_gts, ref_pos, window_size, split_portions=10, out_imputed='imputed_gts.vcf'):
 
     if split_portions == 1:
         end_j=len(pos)
@@ -189,5 +228,34 @@ def main_impute(genos, pos, ref_gts, ref_pos, window_size, split_portions=10):
         result = [p.get() for p in processes]
         result= np.concatenate(result)
     return result
-    
-    
+
+#main function that create chimeric reference genomes and impute the genomic data
+def vcf2imput(file_name, num_ref, window_size=100, num_threads=10, out_ref='chimeric_ref_gts.vcf', out_imputed='imputed_gts.vcf'):
+    genos, pos, ref_gts, ref_pos = vcf2ref(file_name, num_ref, window_size, out_ref)
+    imputed_results = impute_geno(genos, pos, ref_gts, ref_pos, window_size, num_threads, out_imputed)
+    #saving the imputed genomes
+    header_1= VCF(file_name).raw_header
+    sams=VCF(file_name).samples
+    temp=header_1.split('\n')
+    temp=temp[:-2]
+    df= pd.DataFrame([temp])
+    df=df.T
+    df.to_csv(out_imputed , sep="\t",header=None, index=None, quoting=3 ,escapechar="\n")
+    columnheader=['#CHROM', 'POS', 'ID', 'REF', 'ALT', 'QUAL', 'FILTER', 'INFO', 'FORMAT']
+    geinfo=np.zeros([len(pos),9])
+    geinfo=pd.DataFrame(geinfo, columns= columnheader,dtype=int)
+    geinfo=geinfo.replace(0,'.')
+    geinfo['POS']= pos
+    geinfo['FILTER']='PASS'
+    geinfo['FORMAT']='GT'
+    geinfo['#CHROM']=otherinfo[:,0]
+    geinfo['REF']=otherinfo[:,1]
+    geinfo['ALT']=otherinfo[:,2]
+    geno2sto=pd.DataFrame(imputed_results, columns=sams)
+    geno2sto=geno2sto.replace(1,'0|0')
+    geno2sto=geno2sto.replace(2,'0|1')
+    geno2sto=geno2sto.replace(3,'1|0')
+    geno2sto=geno2sto.replace(4,'1|1')
+    newdf= pd.concat([geinfo,geno2sto],axis=1)
+    newdf.to_csv(out_imputed, mode='a', sep="\t", header=True, index=None, quoting=3 ,escapechar="\n")
+    return imputed_results
