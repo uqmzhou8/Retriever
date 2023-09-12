@@ -5,4 +5,7 @@ The program uses a VCF input file to create a predefined number of chimeric refe
 Please install the packages required using conda by typing the line below into the powershell or terminal (for Mac computers)
 conda install numpy pandas cyvcf2 scikit-learn
 
-# Using the program
+# List of functions available
+## vcf2imp
+### Reguired arguments
+file_name: name of vcf file that contains the genomic data for imputation
