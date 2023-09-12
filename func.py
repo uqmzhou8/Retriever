@@ -188,6 +188,7 @@ def vcf2ref(file_name, num_ref, window_size=100, outfile='chimeric_ref_gts.vcf')
     header_1= VCF(file_name).raw_header
     temp=header_1.split('\n')
     temp=temp[:-2]
+    temp=temp+['##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">']
     df= pd.DataFrame([temp])
     df=df.T
     df.to_csv(outfile , sep="\t",header=None, index=None, quoting=3 ,escapechar="\n")
@@ -238,6 +239,7 @@ def vcf2imput(file_name, num_ref, window_size=100, num_threads=10, out_ref='chim
     sams=VCF(file_name).samples
     temp=header_1.split('\n')
     temp=temp[:-2]
+    temp=temp+['##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">']
     df= pd.DataFrame([temp])
     df=df.T
     df.to_csv(out_imputed , sep="\t",header=None, index=None, quoting=3 ,escapechar="\n")
