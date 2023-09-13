@@ -9,7 +9,7 @@ conda install numpy pandas cyvcf2 scikit-learn
 Chi2imp takes in VCF files to create a predefined number of chimeric reference genomes and store these genomes back into a VCF file. The saved chimeric reference genomic VCF file can serve as a checkpoint, in the event that the operating time exceeds the maximum walltime of a supercomputing cluster, or used as a set of reference genomic data for other imputation softwares. 
 ## vcf2imput
 The vcf2imput function takes an input VCF files and perform the whole pipeline of generating chimeric reference genomic data and using it to impute the missing data. A standard use of the vcf2imput function is as follows:
-<vcf2imput(file_name, num_ref, window_size=100, num_threads=10, out_ref='chimeric_ref_gts.vcf', out_imputed='imputed_gts.vcf') >
+>vcf2imput(file_name, num_ref, window_size=100, num_threads=10, out_ref='chimeric_ref_gts.vcf', out_imputed='imputed_gts.vcf')
 ### Required arguments
 file_name: Name of the input vcf file that contains the genomic data needed for creation of chimeric reference genomes and performing imputation. The file should be in a vcf format.
 num_ref: Number of chimeric reference genomes to create. A recommended number is approximately 25% of the total sample size.
