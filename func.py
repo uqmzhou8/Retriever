@@ -231,8 +231,43 @@ def impute_geno(genos, pos, ref_gts, ref_pos, window_size, split_portions=10, ou
     return result
 
 #main function that create chimeric reference genomes and impute the genomic data
-def vcf2imput(file_name, num_ref, window_size=100, num_threads=10, out_ref='chimeric_ref_gts.vcf', out_imputed='imputed_gts.vcf'):
+def vcfref2imput(file_name, num_ref, window_size=100, num_threads=10, out_ref='chimeric_ref_gts.vcf', out_imputed='imputed_gts.vcf'):
     genos, pos, ref_gts, ref_pos = vcf2ref(file_name, num_ref, window_size, out_ref)
+    imputed_results = impute_geno(genos, pos, ref_gts, ref_pos, window_size, num_threads, out_imputed)
+    #saving the imputed genomes
+    header_1= VCF(file_name).raw_header
+    sams=VCF(file_name).samples
+    temp=header_1.split('\n')
+    temp=temp[:-2]
+    temp=temp+['##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">']
+    df= pd.DataFrame([temp])
+    df=df.T
+    df.to_csv(out_imputed , sep="\t",header=None, index=None, quoting=3 ,escapechar="\n")
+    columnheader=['#CHROM', 'POS', 'ID', 'REF', 'ALT', 'QUAL', 'FILTER', 'INFO', 'FORMAT']
+    geinfo=np.zeros([len(pos),9])
+    geinfo=pd.DataFrame(geinfo, columns= columnheader,dtype=int)
+    geinfo=geinfo.replace(0,'.')
+    geinfo['POS']= pos
+    geinfo['FILTER']='PASS'
+    geinfo['FORMAT']='GT'
+    geinfo['#CHROM']=otherinfo[:,0]
+    geinfo['REF']=otherinfo[:,1]
+    geinfo['ALT']=otherinfo[:,2]
+    geno2sto=pd.DataFrame(imputed_results, columns=sams)
+    geno2sto=geno2sto.replace(1,'0|0')
+    geno2sto=geno2sto.replace(2,'0|1')
+    geno2sto=geno2sto.replace(3,'1|0')
+    geno2sto=geno2sto.replace(4,'1|1')
+    newdf= pd.concat([geinfo,geno2sto],axis=1)
+    newdf.to_csv(out_imputed, mode='a', sep="\t", header=True, index=None, quoting=3 ,escapechar="\n")
+    return imputed_results
+
+
+
+#function to run imputation from chimeric reference genomes
+def chi2imput(file_name, ref_file, window_size=100, num_threads=48, out_imputed='imputed_gts.vcf'):
+    genos, pos, otherinfo= vcf_read(file_name)
+    ref_gts, ref_pos, otherinfo_ref= vcf_read(ref_file)
     imputed_results = impute_geno(genos, pos, ref_gts, ref_pos, window_size, num_threads, out_imputed)
     #saving the imputed genomes
     header_1= VCF(file_name).raw_header
