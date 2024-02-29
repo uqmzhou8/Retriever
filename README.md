@@ -6,6 +6,9 @@ Please install the packages required using conda by typing the line below into t
 conda install numpy pandas cyvcf2 scikit-learn
 
 # List of functions available
+Prior to using Retriever, please import the Retriever package into the same script for running the imputation as shown below:
+>import Retriever
+>
 Retriever takes in VCF files to create a predefined number of chimeric reference genomes and store these genomes back into a VCF file. The saved chimeric reference genomic VCF file can serve as a checkpoint, in the event that the operating time exceeds the maximum walltime of a supercomputing cluster, or used as a set of reference genomic data for other imputation softwares. 
 ## vcf2imput
 The vcf2imput function takes an input VCF files and perform the whole pipeline of generating chimeric reference genomic data and using it to impute the missing data. A standard use of the vcf2imput function is as follows:
