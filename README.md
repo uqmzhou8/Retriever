@@ -4,6 +4,7 @@ The program uses a VCF input file to create a predefined number of chimeric refe
 # Installation:
 Retriever makes use of external packages for some processes so it is recommended to install these packages in a virtual environment:
 > conda create -n Retriever
+> 
 > conda activate Retriever
 
 Please install the packages required by typing the following line  into the powershell or terminal:
