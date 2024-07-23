@@ -1,6 +1,15 @@
 # Retriever
 The program uses a VCF input file to create a predefined number of chimeric reference genomes. These reference genomes can be used for imputation with either conventional imputation software or a built-in algorithm that employs machine learning. Although Retriever has been designed to be user-friendly, a basic understanding of coding with Python is assumed, requring users to execute the imputation pipeline through simple command lines with minimal additional programming.
 
+# Contents
+1. [Installation](#Installation)
+2. [Functions available](#List-of-functions-available)
+   - [Entire imputation pipeline](##Running-entire-imputation-pipeline)
+   - [Assembly of chimeric reference panel only](##Assembly-of-chimeric-reference-panel)
+   - [Imputation using chimeric reference panel](##Imputation-from-chimeric-reference-panel)
+
+
+
 # Installation:
 Retriever makes use of external packages for some processes so it is recommended to install these packages in a virtual environment:
 > conda create -n Retriever
