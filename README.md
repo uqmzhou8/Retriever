@@ -11,12 +11,19 @@ The program uses a VCF input file to create a predefined number of chimeric refe
 
 
 # Installation:
+
 Retriever makes use of external packages for some processes so it is recommended to install these packages in a virtual environment:
+```
+conda env create -f Retriever.yml
+```
+
+Alternatively, if the environment file above does not work, please create the virtual environment manually as follows:
+
 ```
 conda create -n Retriever
 conda activate Retriever
 ```
-Please install the packages required by typing the following line  into the powershell or terminal:
+Next, please install the packages required by typing the following line into the powershell or terminal:
 ```
 conda install numpy pandas cyvcf2 scikit-learn
 ```
