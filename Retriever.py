@@ -197,7 +197,7 @@ def impute_missing(genos, pos, ref_gts, ref_pos, window_size, end_j, j=0):
     return imputed_gts
 
 #generate chimeric reference genomes and saving the reference genomes
-def vcf2ref(file_name, num_ref, window_size=100, outfile='chimeric_ref_gts.vcf'):
+def vcf2ref(file_name, num_ref, window_size=1000, outfile='chimeric_ref_gts.vcf'):
     global otherinfo
     genos,pos, otherinfo= vcf_read(file_name)
     
@@ -249,7 +249,7 @@ def impute_geno(genos, pos, ref_gts, ref_pos, window_size, split_portions=10, ou
     return result
 
 #main function that create chimeric reference genomes and impute the genomic data
-def vcf2imput(file_name, num_ref, window_size=100, window_size_imp =1000, num_threads=10, out_ref='chimeric_ref_gts.vcf', out_imputed='imputed_gts.vcf'):
+def vcf2imput(file_name, num_ref, window_size=1000, window_size_imp =1000, num_threads=96, out_ref='chimeric_ref_gts.vcf', out_imputed='imputed_gts.vcf'):
     genos, pos, ref_gts, ref_pos = vcf2ref(file_name, num_ref, window_size, out_ref)
     imputed_results = impute_geno(genos, pos, ref_gts, ref_pos, window_size_imp, num_threads, out_imputed)
     #saving the imputed genomes
@@ -283,7 +283,7 @@ def vcf2imput(file_name, num_ref, window_size=100, window_size_imp =1000, num_th
 
 
 #function to run imputation from chimeric reference genomes
-def chi2imput(file_name, ref_file, window_size=100, num_threads=48, out_imputed='imputed_gts.vcf'):
+def chi2imput(file_name, ref_file, window_size=1000, num_threads=48, out_imputed='imputed_gts.vcf'):
     genos, pos, otherinfo= vcf_read(file_name)
     ref_gts, ref_pos, otherinfo_ref= vcf_read(ref_file)
     imputed_results = impute_geno(genos, pos, ref_gts, ref_pos, window_size, num_threads, out_imputed)
