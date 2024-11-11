@@ -66,7 +66,8 @@ def extract_ref(genos, pos, ref_size, window_size):
             a=len(pos)
         else:
             a=min(nextpos[0])
-            
+        
+        
         while i < a:
             extract_gts = genos[i:a+1]
             missing_pos= np.where(extract_gts == -3)
@@ -74,18 +75,35 @@ def extract_ref(genos, pos, ref_size, window_size):
             # print(i)
             if len(extract_gts[0])<ref_size:
                 a = a-1
-
+                #raise error if number of genotypes present within any allele is less than the number of chimeric references to output
+                if i==a:
+                    extract_gts = genos[i]
+                    missing_pos= np.where(extract_gts == -3)
+                    extract_gts = np.delete(extract_gts, missing_pos[0])
+                    
+                    if len(extract_gts)<ref_size:
+                        raise IOError('Ensure that the number of chimeric references to generate is less than the present genotypes per site')
+                    randomsam = random.sample(range(len(extract_gts)), ref_size)
+                    tempgts = np.stack(extract_gts[randomsam])
+                    if i == 0:
+                        ref_gts=tempgts
+                        ref_pos= [pos[i:a+1]]
+                    else:
+                        ref_pos.append(pos[i:a+1])
+                        ref_gts= np.vstack((ref_gts , tempgts))
+                    
+                    i=a+1
             else:
                 randomsam = random.sample(range(len(extract_gts[0])), ref_size)
                 tempgts = extract_gts[: , randomsam]
                 
-
+    
                 if i == 0:
                     ref_gts=tempgts
                     ref_pos= [pos[i:a+1]]
                 else:
                     ref_pos.append(pos[i:a+1])
-                    ref_gts= np.concatenate((ref_gts , tempgts), axis=0)
+                    ref_gts= np.vstack((ref_gts , tempgts))
                 i=a+1
     ref_pos=np.concatenate(ref_pos)
     if all(ref_pos != pos):
@@ -231,9 +249,9 @@ def impute_geno(genos, pos, ref_gts, ref_pos, window_size, split_portions=10, ou
     return result
 
 #main function that create chimeric reference genomes and impute the genomic data
-def vcfref2imput(file_name, num_ref, window_size=100, num_threads=10, out_ref='chimeric_ref_gts.vcf', out_imputed='imputed_gts.vcf'):
+def vcf2imput(file_name, num_ref, window_size=100, window_size_imp =1000, num_threads=10, out_ref='chimeric_ref_gts.vcf', out_imputed='imputed_gts.vcf'):
     genos, pos, ref_gts, ref_pos = vcf2ref(file_name, num_ref, window_size, out_ref)
-    imputed_results = impute_geno(genos, pos, ref_gts, ref_pos, window_size, num_threads, out_imputed)
+    imputed_results = impute_geno(genos, pos, ref_gts, ref_pos, window_size_imp, num_threads, out_imputed)
     #saving the imputed genomes
     header_1= VCF(file_name).raw_header
     sams=VCF(file_name).samples
