@@ -31,14 +31,18 @@ These packages are prerequsites for running Retriever and are readily available 
 
 # Assumptions of the input file
 ## Format of VCF file
-Retriever is designed for use in VCF version 4.0 onwards and all samples are aligned to a single reference genome.
+Retriever is designed for use in VCF version 4.0 onwards and all samples are aligned to a single reference genome. While imputation can be performed with a approximately 200 samples, larger sample sizes generally lead to higher-quality reference panels and more accurate imputation results.
 
 ## Filtering
 1. If the dataset contains samples from multiple populations, the VCF files should be split so that each file contains only a single population, as this reduces population structure bias and improves imputation accuracy.
 2. Similarly, each chromosome should be contained in its own VCF file to allow for parallel processing during chimeric reference panel assembly, enabling each chromosome to be processed independently using a single CPU.
-3. The input VCF should be filtered to retain only biallelic variants, and we recommend excluding variants with more than 20% missing genotypes. Additionally, while imputation can be performed with a approximately 200 samples, larger sample sizes generally lead to higher-quality reference panels and more accurate imputation results.
+3. The input VCF should be filtered to retain only biallelic variants, and we recommend excluding variants with more than 20% missing genotypes.
+5. Quality check for VCF file is assumed to be performed prior to using Retriever.
+6. Diploid individuals to be used.
+7. Duplicated positions are to be removed to avoid overlapping positions when assembling the reference panel.
+8. The positions are sorted in ascending order.
 
-An example of the filtering criteria using bcftools is shown below. Replace name-of-the-chromosome-in-the-vcf-file, name_of_samples.vcf.gz, and filtered_file.vcf with:
+An example of the filtering criteria using bcftools is shown below but other tools such as VCFtools can be used for filtering too. Replace name-of-the-chromosome-in-the-vcf-file, name_of_samples.vcf.gz, and filtered_file.vcf with:
 - the chromosome name present in your VCF file (e.g., chr1),
 - the name or path of your input sample VCF file, and
 - the desired name for your output file, respectively.
