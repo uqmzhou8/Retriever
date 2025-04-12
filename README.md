@@ -65,7 +65,7 @@ from Retriever import *
 
 ## Assembly of chimeric reference panel
 ```
-vcf2ref(file_name.vcf, num_ref, window_size=1000, outfile='chimeric_ref_gts.vcf')
+vcf2ref('file_name.vcf', num_ref, window_size=1000, outfile='chimeric_ref_gts.vcf')
 ```
 ### Required arguments
 **file_name:**  Name of the input vcf file that contains the genomic data needed for creation of chimeric reference genomes and performing imputation. The file should be in a vcf format.
@@ -77,9 +77,25 @@ vcf2ref(file_name.vcf, num_ref, window_size=1000, outfile='chimeric_ref_gts.vcf'
 
 **out_ref:** File name of the output chimeric reference genomic data. Default = 'chimeric_ref_gts.vcf'
 
+## Parallelisation across chromosomes
+The multiprocessing tool in python allows several chromosomes to be run with Retriever concurrently. An example is provided below for running multiple chromosomes in parallel:
+```
+chromosome_numbers= ['chr1', 'chr2', 'chr3', 'chr4', 'chr5'] #input the chromosome names in here and enclose all names in apostrophes
+def par_Ret(no):
+  vcf2ref('file_name_' + str(no) +'.vcf', num_ref, window_size=1000, outfile='chimeric_ref_gts' + str(no) +'.vcf')
+from multiprocessing import Pool
+with Pool(48) as p:
+    p.map(par_Ret, chromosome_numbers)
 
-## Caveats
+```
+**file_name** when splitting the files based on the chromosomes, naming the files to contain the chromosome number will result in easier 
+**chromosome_numbers** can be in either numbers or strings format
+
+Please visit https://docs.python.org/3/library/multiprocessing.html for more information on multiprocessing.
+
+# Caveats
 1. If the number of individuals within any window is less than the number required to assemble the chimeric panel, the program will terminate with an error. To avoid this, ensure that each position includes at least as many genotypes as the chimeric panel size.
 2. Buckets are temporarily stored in local memory. To prevent memory-related issues, allocate at least three times the expected data size in available memory when running Retriever.
-3. Only 1 CPU core is required for computing so more CPU access will not expediate the program.
 4. Ensure only 1 chromosome is in each VCF file input to Retriever.
+5. Only 1 CPU core is required for computing so more CPU access will not expediate the program,
+6. However, availability to more CPU allows parallelisation of files from multiple chromosomes.
