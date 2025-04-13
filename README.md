@@ -93,7 +93,7 @@ with Pool(48) as p:
 
 Please visit https://docs.python.org/3/library/multiprocessing.html for more information on multiprocessing.
 
-# Caveats
+# Special considerations for running Retriever
 1. If the number of individuals within any window is less than the number required to assemble the chimeric panel, the program will terminate with an error. To avoid this, ensure that each position includes at least as many genotypes as the chimeric panel size.
 2. Buckets are temporarily stored in local memory. To prevent memory-related issues, allocate at least three times the expected data size in available memory when running Retriever.
 4. Ensure only 1 chromosome is in each VCF file input to Retriever.
