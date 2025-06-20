@@ -43,12 +43,12 @@ Retriever is designed for use in VCF version 4.0 onwards and all samples are ali
 7. Duplicated positions are to be removed to avoid overlapping positions when assembling the reference panel.
 8. The positions are sorted in ascending order.
 
-Filtering of the SNP file can be performed using tools such as VCFtools and bcftools. Here is an example of using bcftools to extract one chromosome for analysis. Replace name-of-the-chromosome-in-the-vcf-file, name_of_samples.vcf.gz, and filtered_file.vcf with:
+Filtering of the SNP file can be performed using tools such as VCFtools and bcftools. Here is an example of using bcftools to extract one chromosome for analysis, removal of multiallelic sites and retaining sites that contain less than 80% missing genotypes. Replace name-of-the-chromosome-in-the-vcf-file, name_of_samples.vcf.gz, and filtered_file.vcf with:
 - the chromosome name present in your VCF file (e.g., chr1),
 - the name or path of your input sample VCF file, and
 - the desired name for your output file, respectively.
 ```
-bcftools view --regions 'name-of-the-chromosome-in-the-vcf-file' name_of_samples.vcf.gz -o filtered_file.vcf
+bcftools view -m2 -M2 -v snps --regions 'name-of-the-chromosome-in-the-vcf-file' name_of_samples.vcf.gz -i 'F_MISSING<0.2'  -o filtered_file.vcf
 ```
 After imputation, the vcf files can be merged back into a single file, if required for downstream analysis. An example of the merger is shown below using bcftools:
 ```
