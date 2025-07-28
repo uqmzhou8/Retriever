@@ -12,6 +12,7 @@ Created on Fri Jul 14 10:54:17 2023
 
 if __name__ == '__main__':
 
-    
+    #This will test the installation and running of Retriever to generate the chimeric reference panel using a dummy dataset
+    #It should take less than a second to run as it is a very small dataset!
     from Retriever import *
-    vcf2imput("dog_chr1.vcf", 50, out_ref='chimeric_ref_gts_chr1.vcf', out_imputed='imputed_gts_chr1.vcf'):
+    vcf2ref('dummy_dataset.vcf', 50, window_size=1000, outfile='chimeric_ref_gts.vcf')
