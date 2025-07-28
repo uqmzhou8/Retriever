@@ -30,6 +30,8 @@ conda install numpy pandas cyvcf2 scikit-learn
 ```
 These packages are prerequsites for running Retriever and are readily available in both Anaconda or pip.
 
+You can test if Retriever has been successful installed using the 'Sample_script.py' file. It should finish execution within 2 seconds using the dummy dataset. Ensure that both the 'dummy_dataset.vcf' and 'Sample_sccript.py' files are within the same folder.
+
 # Assumptions of the input file
 ## Format of VCF file
 Retriever is designed for use in VCF version 4.0 onwards and all samples are aligned to a single reference genome. While imputation can be performed with approximately 200 samples, larger sample sizes generally lead to higher-quality reference panels and more accurate imputation results. Both compressed (file_name.vcf.gz) and uncompressed (file_name.vcf) VCF files are compatible with Retriever.
