@@ -96,7 +96,7 @@ with Pool(48) as p:
 
 Please visit https://docs.python.org/3/library/multiprocessing.html for more information on multiprocessing.
 
-##Imputation with Beagle4 (after Retriever)
+## Imputation with Beagle4 (after Retriever)
 After the chimeric reference panel has been generated and saved into a VCF file, imputation is recommended to be performed using Beagle4 (https://faculty.washington.edu/browning/beagle/b4_1.html). Below is an example of imputation performed with Beagle4.
 ```
 java -jar beagle.27Jan18.7e1.jar impute=false nthreads=96 gt=path_to_original_samples.vcf ref=path_to_chimeric_reference.vcf out=name_of_imputed_file
