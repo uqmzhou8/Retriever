@@ -60,7 +60,7 @@ bcftools merge input_file1.vcf.gz input_file2.vcf.gz -o merged_files.vcf.gz
 # Running Retriever
 Retriever takes in VCF files to create a predefined number of chimeric reference genomes and store these genomes back into a VCF file. The saved chimeric reference genomic VCF file can be used as the reference panel in imputation software such as Beagle.
 
-##Generation of chimeric reference panel with Retriever
+## Generation of chimeric reference panel with Retriever
 Prior to using Retriever, please import the Retriever package into the same script for running the imputation as shown below:
 ```
 from Retriever import *
