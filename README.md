@@ -7,7 +7,7 @@ This software is developed under the Ortiz-Barrientos lab.
 # Contents
 1. [Installation](#Installation)
 2. [Input file checklist](#Assumptions-of-the-input-file)
-3. [Functions available](#Running-Retriever)
+3. [Pipeline for Retriever and Beagle4](#Running-Retriever)
 
 
 
@@ -60,6 +60,7 @@ bcftools merge input_file1.vcf.gz input_file2.vcf.gz -o merged_files.vcf.gz
 # Running Retriever
 Retriever takes in VCF files to create a predefined number of chimeric reference genomes and store these genomes back into a VCF file. The saved chimeric reference genomic VCF file can be used as the reference panel in imputation software such as Beagle.
 
+##Generation of chimeric reference panel with Retriever
 Prior to using Retriever, please import the Retriever package into the same script for running the imputation as shown below:
 ```
 from Retriever import *
@@ -94,6 +95,22 @@ with Pool(48) as p:
 **chromosome_numbers** can be in either numbers or strings format
 
 Please visit https://docs.python.org/3/library/multiprocessing.html for more information on multiprocessing.
+
+##Imputation with Beagle4 (after Retriever)
+After the chimeric reference panel has been generated and saved into a VCF file, imputation is recommended to be performed using Beagle4 (https://faculty.washington.edu/browning/beagle/b4_1.html). Below is an example of imputation performed with Beagle4.
+```
+java -jar beagle.27Jan18.7e1.jar impute=false nthreads=96 gt=path_to_original_samples.vcf ref=path_to_chimeric_reference.vcf out=name_of_imputed_file
+```
+If there are multiple chromosomes to impute, a loop can be used to perform the imputation by calling the files by the chromosome number. For example, there are 20 chromosomes, the following codes can be used:
+```
+for num in {1..20};
+do
+
+  java -jar beagle.27Jan18.7e1.jar impute=false nthreads=96 gt=path_to_original_samples_chromosome${num}.vcf ref=path_to_chimeric_reference_chromosome${num}.vcf out=name_of_imputed_file_chromosome${num}
+
+done
+```
+
 
 # Special considerations for running Retriever
 1. If the number of individuals within any window is less than the number required to assemble the chimeric panel, the program will terminate with an error. To avoid this, ensure that each position includes at least as many genotypes as the chimeric panel size.
