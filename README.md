@@ -164,7 +164,7 @@ vcf2ref('file_name.vcf', num_ref, window_size=1000, outfile='chimeric_ref_gts.vc
 
 **file_name:** Name of the input VCF file containing genomic data for chimeric reference genome creation. Must be in VCF format.
 
-**num_ref:** Number of chimeric reference genomes to create. Recommended: approximately 25% of total sample size or 50 individuals.
+**num_ref:** Number of chimeric reference genomes to create. Recommended: approximately 25% of total sample size or 50 individuals. Only the number of individuals needed as this is a required argument. No default number is given.
 
 #### Optional Arguments
 
