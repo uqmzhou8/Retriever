@@ -179,7 +179,7 @@ from Retriever import *
 
 # Basic implementation with validated parameters
 vcf2ref('chr22_filtered.vcf', 
-        num_ref=50, 
+        50, 
         window_size=1000, 
         outfile='chr22_chimeric_ref.vcf')
 
@@ -199,7 +199,7 @@ chromosome_numbers = ['chr1', 'chr2', 'chr3', 'chr4', 'chr5']
 
 def par_Ret(chr_name):
     vcf2ref(f'filtered_{chr_name}.vcf', 
-            num_ref=50, 
+            50, 
             window_size=1000, 
             outfile=f'chimeric_ref_{chr_name}.vcf')
 
@@ -245,7 +245,6 @@ done
 - **Cause:** Window contains fewer complete genotypes than required panel size
 - **Solutions:** 
   - Reduce `num_ref` parameter (try 25 instead of 50)
-  - Increase `window_size` to 2000-5000 bp
   - Check input data preprocessing
 
 **Memory Issues:**
@@ -265,6 +264,7 @@ done
 ### Special Considerations
 
 - Ensure only 1 chromosome per VCF file input to Retriever
+- Ensure positions within VCF file are in chronological order
 - Only 1 CPU core required for computing; additional cores do not expedite the program
 - CPU availability allows parallelization across multiple chromosome files
 - If insufficient individuals in any window, program will terminate with error
@@ -313,7 +313,7 @@ This suggests utility for datasets containing population-specific variants not i
 
 Validation benchmarking against machine learning approaches:
 - **Retriever + Beagle4:** >95% accuracy consistently
-- **missForest:** 93-97% accuracy (best reference-free method)
+- **missForest:** 93-97% accuracy 
 - **k-Nearest Neighbors:** 90-94% accuracy
 
 ### Case Study: Downstream Analysis Effects
